@@ -4,27 +4,27 @@
 // by cloning the git repository
 System.setProperty("jdk.tls.useExtendedMasterSecret", "false")
 
-val subktDir = if (extra.has("subktDir")) extra["subktDir"] as String else null
-
-if (subktDir != null) {
-    includeBuild(subktDir)
-} else {
-    val subktRepo: String by settings
-    sourceControl {
-        gitRepository(uri(subktRepo)) {
-            producesModule("myaa:subkt")
+pluginManagement {
+    val subktDir = providers.gradleProperty("subktDir").orNull
+    if (subktDir != null) {
+        includeBuild(subktDir)
+    } else {
+        val subktVersion = providers.gradleProperty("subktVersion").get()
+        resolutionStrategy {
+            eachPlugin {
+                if (requested.id.id == "myaa.subkt") {
+                    useModule("myaa:subkt:$subktVersion")
+                }
+            }
         }
     }
 }
 
-pluginManagement {
-    val subktVersion: String by settings
-
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == "myaa.subkt") {
-                useModule("myaa:subkt:$subktVersion")
-            }
+if (!providers.gradleProperty("subktDir").isPresent) {
+    val subktRepo = providers.gradleProperty("subktRepo").get()
+    sourceControl {
+        gitRepository(uri(subktRepo)) {
+            producesModule("myaa:subkt")
         }
     }
 }
