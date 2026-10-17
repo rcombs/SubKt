@@ -4,11 +4,16 @@
 // by cloning the git repository
 System.setProperty("jdk.tls.useExtendedMasterSecret", "false")
 
-val subktRepo: String by settings
+val subktDir = if (extra.has("subktDir")) extra["subktDir"] as String else null
 
-sourceControl {
-    gitRepository(uri(subktRepo)) {
-        producesModule("myaa:subkt")
+if (subktDir != null) {
+    includeBuild(subktDir)
+} else {
+    val subktRepo: String by settings
+    sourceControl {
+        gitRepository(uri(subktRepo)) {
+            producesModule("myaa:subkt")
+        }
     }
 }
 
